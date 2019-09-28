@@ -48,6 +48,7 @@
 /* TODO: insert other definitions and declarations here. */
 #define LIMIT_TIME		(60U)
 #define LIMIT_HOUR		(24U)
+#define RST_TIME     	(0U)
 #define TICKS_SECONDS	(1000U)
 
 /*
@@ -65,6 +66,43 @@ QueueHandle_t xQueue;
 /*
  * @brief   Application entry point.
  */
+/* TODO: insert other structures*/
+
+typedef enum{seconds_type, minutes_type, hours_type} time_types_t;
+
+typedef struct
+{
+	uint8_t seconds;
+	uint8_t minutes;
+	uint8_t hours;
+} timer_alarm_t;
+
+typedef struct
+{
+	time_types_t time_type;
+    uint8_t value;
+} time_msg_t;
+
+void task_seconds()
+{
+	const TickType_t xPeriod = pdMS_TO_TICKS(TICKS_SECONDS);
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+
+	uint8_t seconds = DEFAULT_SECONDS;
+	time_msg_t *time_queue;
+
+	for(;;)
+	{
+		vTaskDelayUntil(&xLastWakeTime, xPeriod);
+		seconds++;
+		if(LIMIT_TIME == seconds)
+		{
+			seconds = RST_TIME;
+			xSemaphoreGive(minutes_semaphore);
+		}
+	}
+}
+
 int main(void) {
 
   	/* Init board hardware. */
