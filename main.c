@@ -45,63 +45,14 @@
 #include "semphr.h"
 #include "queue.h"
 #include "event_groups.h"
+/*File with all the functions*/
+#include "rtos_timer.h"
 /* TODO: insert other definitions and declarations here. */
-#define LIMIT_TIME		(60U)
-#define LIMIT_HOUR		(24U)
-#define RST_TIME     	(0U)
-#define TICKS_SECONDS	(1000U)
 
-/*
- * De acuerdo a las diapositivas nombramos a los distintos semaforos, mutex y eventos.
- */
-//handle by which the semaphore can be referenced
-SemaphoreHandle_t minutes_semaphore;
-SemaphoreHandle_t hours_semaphore;
-SemaphoreHandle_t g_mutex1;
-SemaphoreHandle_t g_mutex2;
-// variable type to store event groups
-EventGroupHandle_t g_time_events;
-//that references the queue it created
-QueueHandle_t xQueue;
 /*
  * @brief   Application entry point.
  */
 /* TODO: insert other structures*/
-
-typedef enum{seconds_type, minutes_type, hours_type} time_types_t;
-
-typedef struct
-{
-	uint8_t seconds;
-	uint8_t minutes;
-	uint8_t hours;
-} timer_alarm_t;
-
-typedef struct
-{
-	time_types_t time_type;
-    uint8_t value;
-} time_msg_t;
-
-void task_seconds()
-{
-	const TickType_t xPeriod = pdMS_TO_TICKS(TICKS_SECONDS);
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-
-	uint8_t seconds = DEFAULT_SECONDS;
-	time_msg_t *time_queue;
-
-	for(;;)
-	{
-		vTaskDelayUntil(&xLastWakeTime, xPeriod);
-		seconds++;
-		if(LIMIT_TIME == seconds)
-		{
-			seconds = RST_TIME;
-			xSemaphoreGive(minutes_semaphore);
-		}
-	}
-}
 
 int main(void) {
 
@@ -114,14 +65,5 @@ int main(void) {
 
     PRINTF("Hello World\n");
 
-    /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
-    /* Enter an infinite loop, just incrementing a counter. */
-    while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
-    }
     return 0 ;
 }
