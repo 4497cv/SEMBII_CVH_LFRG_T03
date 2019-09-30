@@ -59,6 +59,7 @@
 #define DEFAULT_SECONDS	(45U)
 
 #define FALSE (0U)
+#define TRUE (1U)
 
 /*
  * De acuerdo a las diapositivas nombramos a los distintos semaforos, mutex y eventos.
@@ -67,7 +68,6 @@
 SemaphoreHandle_t minutes_semaphore;
 SemaphoreHandle_t hours_semaphore;
 SemaphoreHandle_t g_mutex1;
-SemaphoreHandle_t g_mutex2;
 // variable type to store event groups
 EventGroupHandle_t g_time_events;
 //that references the queue it created
@@ -78,6 +78,8 @@ QueueHandle_t xQueue;
 /* TODO: insert other structures*/
 
 typedef enum{seconds_type, minutes_type, hours_type} time_types_t;
+
+typedef enum{minutes_alarm = 2,hours_alarm = 6}alarm_t;
 
 typedef struct
 {
@@ -216,6 +218,9 @@ void task_print_terminal()
 	uint8_t hours_t = DEFAULT_HOURS;
 	uint8_t minutes_t = DEFAULT_MINUTES;
 	uint8_t seconds_t = DEFAULT_SECONDS;
+	volatile uint8_t alarm_minutes_flag_t = FALSE;
+	volatile uint8_t alarm_hours_flag_t = FALSE;
+	uint8_t entry_t = FALSE;
 
 	for(;;)
 	{
@@ -229,6 +234,11 @@ void task_print_terminal()
 					break;
 			case (minutes_type):
 					minutes_t = timer_alarm_queue->value;
+					if(minutes_t == minutes_alarm)
+					{
+						alarm_minutes_flag_t = TRUE;
+					}
+					/**/
 					if(FALSE == minutes_t)
 					{
 						hours_t = RST_TIME;
@@ -236,11 +246,30 @@ void task_print_terminal()
 					break;
 			case (hours_type):
 					hours_t = timer_alarm_queue->value;
+					if(hours_t == hours_alarm)
+					{
+						alarm_hours_flag_t = TRUE;
+					}
 					break;
 			default:
 					break;
 			}
 		}while(FALSE != uxQueueMessagesWaiting(xQueue));
+
+		if(TRUE == (alarm_hours_flag_t && alarm_minutes_flag_t))
+		{
+			xSemaphoreTake(g_mutex1,portMAX_DELAY);
+			PRINTF("ALARM!!!\r\n");
+			xSemaphoreGive(g_mutex1);
+
+			if(FALSE == entry_t)
+			{
+				alarm_hours_flag_t = FALSE;
+				alarm_minutes_flag_t = FALSE;
+				/**/
+				entry_t = TRUE;
+			}
+		}
 
 		xSemaphoreTake(g_mutex1,portMAX_DELAY);
 		PRINTF("%i:%i:%i\r\n", hours_t, minutes_t, seconds_t);
