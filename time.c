@@ -23,6 +23,8 @@ static EventGroupHandle_t g_time_events;
 //that references the queue it created
 static QueueHandle_t xQueue;
 
+static timer_alarm_t alarm = {ALARM_HR_VAL, ALARM_MIN_VAL, ALARM_SEC_VAL};
+
 static const Keymap_t key_map[TABLE_SIZE]=
 {
 	{ZERO,        ZERO,  ZERO},
@@ -86,7 +88,6 @@ static const Keymap_t key_map[TABLE_SIZE]=
 	{FIFTYEIGHT,  FIVE,  EIGHT},
 	{FIFTYNINE,   FIVE,  NINE}
 };
-
 
 uint8_t get_table_value_1(uint8_t unit, uint8_t decimal)
 {
@@ -231,7 +232,9 @@ void task_hours()
 		{
 			hours_t = RST_TIME;
 			xSemaphoreGive(hours_semaphore);
+
 		}
+
 		timer_alarm_queue->time_type = hours_type;
 		timer_alarm_queue->value = hours_t;
 
@@ -285,7 +288,30 @@ void task_print_terminal()
 									 get_table_value_unit(seconds_t),
 									 get_table_value_decimal(seconds_t));
 		xSemaphoreGive(g_mutex1);
+		check_alarm(hours_t, minutes_t, seconds_t);
 	}
+}
+
+void task_alarm()
+{
+	EventBits_t events_flag;
+
+	for(;;)
+	{
+
+	events_flag = xEventGroupGetBits(g_time_events);
+
+	if(events_flag == (bit_0 | bit_1 | bit_2))
+	{
+		PRINTF("WAKE UP! \n \r");
+		xEventGroupClearBits(g_time_events, (bit_0 | bit_1 | bit_2));
+	}
+	else
+	{
+
+	}
+	}
+
 }
 
 void time_init()
@@ -302,3 +328,16 @@ void time_init()
     xQueue = xQueueCreate(QUEUE_ELEMENTS, sizeof(time_msg_t*));
 }
 
+void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+	if((alarm.hours == hours) &&
+	   (alarm.minutes == minutes) &&
+	   (alarm.seconds == seconds))
+	{
+		xEventGroupSetBits(g_time_events, bit_0 | bit_1 | bit_2);
+	}
+	else
+	{
+
+	}
+}

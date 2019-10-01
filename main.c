@@ -46,6 +46,8 @@ int main(void)
     xTaskCreate(task_hours, "t_hr", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
 	/* task for the terminal creation */
     xTaskCreate(task_print_terminal, "terminal_print", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
+    /* seconds task creation */
+    xTaskCreate(task_alarm, "t_alarm", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
 
     /* start scheduler */
     vTaskStartScheduler();

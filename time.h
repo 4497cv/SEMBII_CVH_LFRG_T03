@@ -37,6 +37,10 @@
 #define DEFAULT_MINUTES	(00U)
 #define DEFAULT_SECONDS	(00U)
 
+#define ALARM_HR_VAL    (12U)
+#define ALARM_MIN_VAL   (00U)
+#define ALARM_SEC_VAL   (15U)
+
 #define FALSE (0U)
 
 #ifndef DEBUG
@@ -142,9 +146,9 @@ typedef enum{seconds_type, minutes_type, hours_type} time_types_t;
 
 typedef struct
 {
-	uint8_t seconds;
-	uint8_t minutes;
 	uint8_t hours;
+	uint8_t minutes;
+	uint8_t seconds;
 } timer_alarm_t;
 
 typedef struct
@@ -207,5 +211,9 @@ void task_minutes(void);
 void task_hours(void);
 
 void task_print_terminal(void);
+
+void task_alarm();
+
+void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds);
 
 #endif /* TIME_H_ */
