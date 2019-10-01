@@ -3,7 +3,7 @@
 	\brief    This is the header file for the time module.
 	
 	\authors: César Villarreal Hernández, ie707560
-	          José Luis Rodríguez Gutiérrez,ie705694
+	          Luis Fernando Rodríguez Gutiérrez,ie705694
 
 	\date	  30/09/2019
  */

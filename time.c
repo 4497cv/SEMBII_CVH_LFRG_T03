@@ -3,7 +3,7 @@
 	\brief    This is the source file for the time module.
 	
 	\authors: César Villarreal Hernández, ie707560
-	          José Luis Rodríguez Gutiérrez,ie705694
+	          Luis Fernando Rodríguez Gutiérrez,ie705694
 
 	\date	  30/09/2019
  */
@@ -144,11 +144,9 @@ void task_seconds()
 
 void task_minutes()
 {
-	
 	uint8_t minutes_t;
 	time_msg_t *timer_alarm_queue;
-
-
+	
 	/* setting default hour value */
 	minutes_t = DEFAULT_MINUTES;
 	/* allocate memory space for minutes queue*/

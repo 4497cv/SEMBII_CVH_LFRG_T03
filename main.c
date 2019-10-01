@@ -1,7 +1,13 @@
-/**
- * @file    timer_alarm_Project.c
- * @brief   Application entry point.
+/*
+	\file     main.c
+	\brief    This is the main file for the alarm clock.
+	
+	\authors: César Villarreal Hernández, ie707560
+	          Luis Fernando Rodríguez Gutiérrez,ie705694
+
+	\date	  30/09/2019
  */
+
 
 #include <stdio.h>
 #include "board.h"
