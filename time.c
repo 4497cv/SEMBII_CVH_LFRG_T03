@@ -10,9 +10,6 @@
 
 #include <time.h>
 
-/*
- * De acuerdo a las diapositivas nombramos a los distintos semaforos, mutex y eventos.
- */
 //handle by which the semaphore can be referenced
 static SemaphoreHandle_t minutes_semaphore;
 static SemaphoreHandle_t hours_semaphore;
@@ -88,61 +85,18 @@ static const Keymap_t key_map[TABLE_SIZE]=
 	{FIFTYNINE,   FIVE,  NINE}
 };
 
-uint8_t get_table_value(uint8_t unit, uint8_t decimal)
+void time_init()
 {
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if((key_map[i].unit == unit) && (key_map[i].decimal == decimal))
-		{
-			ret_val = key_map[i].nval; //merge units and decimals
-		}
-	}
-
-	return ret_val;
-}
-
-uint8_t get_table_value_unit(uint8_t value)
-{
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if(key_map[i].nval == value)
-		{
-			ret_val = key_map[i].unit; //merge units and decimals
-		}
-	}
-
-	return ret_val;
-}
-
-uint8_t get_table_value_decimal(uint8_t value)
-{
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if(key_map[i].nval == value)
-		{
-			ret_val = key_map[i].decimal; //merge units and decimals
-		}
-	}
-
-	return ret_val;
+	/* semaphore's mutex instantiation */
+    g_mutex1 = xSemaphoreCreateMutex();
+    /* minutes semaphore instantiation */
+    minutes_semaphore = xSemaphoreCreateBinary();
+	/* hours semaphore instantiation */
+    hours_semaphore = xSemaphoreCreateBinary();
+    /* time event instantiation **/
+    g_time_events = xEventGroupCreate();
+    /* time queue instantiation*/
+    xQueue = xQueueCreate(QUEUE_ELEMENTS, sizeof(time_msg_t*));
 }
 
 void task_seconds()
@@ -268,6 +222,44 @@ void task_hours()
 	}
 }
 
+void task_alarm()
+{
+	EventBits_t events_flag;
+
+	for(;;)
+	{
+		/* get event group's state */
+		events_flag = xEventGroupGetBits(g_time_events);
+
+		/* verify if alarm is set */
+		if(events_flag == (bit_0 | bit_1 | bit_2))
+		{
+			PRINTF("WAKE UP! \n \r");
+			/* clear event group bits */
+			xEventGroupClearBits(g_time_events, (bit_0 | bit_1 | bit_2));
+		}
+		else
+		{
+
+		}
+	}
+}
+
+void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds)
+{
+	if((alarm.hours == hours) &&
+	   (alarm.minutes == minutes) &&
+	   (alarm.seconds == seconds))
+	{
+		/* set the bits that trigger the alarm */
+		xEventGroupSetBits(g_time_events, bit_0 | bit_1 | bit_2);
+	}
+	else
+	{
+
+	}
+}
+
 void task_print_terminal()
 {
 	time_msg_t *timer_alarm_queue;
@@ -317,52 +309,59 @@ void task_print_terminal()
 	}
 }
 
-void task_alarm()
+uint8_t get_table_value(uint8_t unit, uint8_t decimal)
 {
-	EventBits_t events_flag;
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
 
-	for(;;)
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
 	{
-
-	events_flag = xEventGroupGetBits(g_time_events);
-
-	if(events_flag == (bit_0 | bit_1 | bit_2))
-	{
-		PRINTF("WAKE UP! \n \r");
-		xEventGroupClearBits(g_time_events, (bit_0 | bit_1 | bit_2));
-	}
-	else
-	{
-
-	}
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if((key_map[i].unit == unit) && (key_map[i].decimal == decimal))
+		{
+			ret_val = key_map[i].nval; //merge units and decimals
+		}
 	}
 
+	return ret_val;
 }
 
-void time_init()
+uint8_t get_table_value_unit(uint8_t value)
 {
-	/* semaphore's mutex instantiation */
-    g_mutex1 = xSemaphoreCreateMutex();
-    /* minutes semaphore instantiation */
-    minutes_semaphore = xSemaphoreCreateBinary();
-	/* hours semaphore instantiation */
-    hours_semaphore = xSemaphoreCreateBinary();
-    /* time event instantiation **/
-    g_time_events = xEventGroupCreate();
-    /* time queue instantiation*/
-    xQueue = xQueueCreate(QUEUE_ELEMENTS, sizeof(time_msg_t*));
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
+
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
+	{
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if(key_map[i].nval == value)
+		{
+			ret_val = key_map[i].unit; //merge units and decimals
+		}
+	}
+
+	return ret_val;
 }
 
-void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds)
+uint8_t get_table_value_decimal(uint8_t value)
 {
-	if((alarm.hours == hours) &&
-	   (alarm.minutes == minutes) &&
-	   (alarm.seconds == seconds))
-	{
-		xEventGroupSetBits(g_time_events, bit_0 | bit_1 | bit_2);
-	}
-	else
-	{
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
 
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
+	{
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if(key_map[i].nval == value)
+		{
+			ret_val = key_map[i].decimal; //merge units and decimals
+		}
 	}
+
+	return ret_val;
 }
