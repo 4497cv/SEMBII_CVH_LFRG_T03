@@ -4,7 +4,7 @@
 	
 	\authors: César Villarreal Hernández, ie707560
 	          José Luis Rodríguez Gutiérrez,ie705694
-			  
+
 	\date	  30/09/2019
  */
 
@@ -107,7 +107,6 @@ uint8_t get_table_value(uint8_t unit, uint8_t decimal)
 	return ret_val;
 }
 
-
 uint8_t get_table_value_unit(uint8_t value)
 {
 	uint8_t ret_val; //output val
@@ -146,7 +145,6 @@ uint8_t get_table_value_decimal(uint8_t value)
 	return ret_val;
 }
 
-
 void task_seconds()
 {
 	uint8_t seconds;
@@ -166,17 +164,19 @@ void task_seconds()
 
 	for(;;)
 	{
-		/* generate a task delay */
+		/* task delay generation */
 		vTaskDelayUntil(&xLastWakeTime, xPeriod);
 
 		if(LIMIT_TIME_S == seconds)
 		{
+			/* reset second's value */
 			seconds = RST_TIME;
+			/* release minutes semaphore */
 			xSemaphoreGive(minutes_semaphore);
 		}
 		else
 		{
-
+			/* do-nothing */
 		}
 
 		timer_alarm_queue->time_type = seconds_type;
@@ -190,26 +190,41 @@ void task_seconds()
 
 void task_minutes()
 {
-	uint8_t minutes_t = DEFAULT_MINUTES;
+	
+	uint8_t minutes_t;
 	time_msg_t *timer_alarm_queue;
 
-	/*asignamos espacio de memoria de acuerdo al tamaño de time_msg_t*/
+
+	/* setting default hour value */
+	minutes_t = DEFAULT_MINUTES;
+	/* allocate memory space for minutes queue*/
 	timer_alarm_queue = pvPortMalloc(sizeof(time_msg_t));
 
 	for(;;)
 	{
-		xSemaphoreTake(minutes_semaphore,portMAX_DELAY);
-		minutes_t++;
+		/* wait for the minutes semaphore to be released */
+		xSemaphoreTake(minutes_semaphore, portMAX_DELAY);
+		
 		if(LIMIT_TIME_M == minutes_t)
 		{
+			/* reset minute's value */
 			minutes_t = RST_TIME;
+			/* release hours semaphore */
 			xSemaphoreGive(hours_semaphore);
 		}
-
+		else
+		{
+			/* do-nothing */
+		}
+		
+		/* set queue's element time format */
 		timer_alarm_queue->time_type = minutes_type;
+		/* set queue's element time value */
 		timer_alarm_queue->value = minutes_t;
-
-		xQueueSend(xQueue,&timer_alarm_queue,portMAX_DELAY);
+		/* send time queue */
+		xQueueSend(xQueue, &timer_alarm_queue, portMAX_DELAY);
+		/* increase the number of minutes */
+		minutes_t++;
 	}
 }
 
@@ -218,6 +233,7 @@ void task_hours()
 	uint8_t hours_t;
 	time_msg_t *timer_alarm_queue;
 
+	/* setting default hour value */
  	hours_t = DEFAULT_HOURS;
 
 	/*asignamos espacio de memoria de acuerdo al tamaño de time_msg_t*/
@@ -225,22 +241,32 @@ void task_hours()
 
 	for(;;)
 	{
+		/* wait for the hours semaphore to be released */
 		xSemaphoreTake(hours_semaphore,portMAX_DELAY);
-		hours_t++;
+		
 		if(LIMIT_TIME_H == hours_t)
 		{
+			/* reset hour's value*/
 			hours_t = RST_TIME;
+			/* release hours semaphore*/
 			xSemaphoreGive(hours_semaphore);
 
 		}
-
+		else
+		{
+			/* do-nothing */
+		}
+		
+		/* set queue's element time format */
 		timer_alarm_queue->time_type = hours_type;
+		/* set queue's element time value */
 		timer_alarm_queue->value = hours_t;
-
+		/* send time queue */
 		xQueueSend(xQueue,&timer_alarm_queue,portMAX_DELAY);
+		/* increase the number of hours */
+		hours_t++;
 	}
 }
-
 
 void task_print_terminal()
 {

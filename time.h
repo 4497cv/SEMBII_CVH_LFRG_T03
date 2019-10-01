@@ -154,24 +154,74 @@ typedef struct
     uint8_t value;
 } time_msg_t;
 
+/*
+ 	 \brief	     This function retrieves time table value. The time input must be divided in units and decimals.
+ 	 \param[in]  uint8_t unit, uint8_t decimal
+ 	 \return     uint8_t
+ */
 uint8_t get_table_value(uint8_t unit, uint8_t decimal);
 
+/*
+ 	 \brief	     This function retrieves time table unit value
+ 	 \param[in]  uint8_t unit, uint8_t decimal
+ 	 \return     uint8_t
+ */
 uint8_t get_table_value_unit(uint8_t value);
 
+/*
+ 	 \brief	     This function retrieves time table decimal value
+ 	 \param[in]  uint8_t unit, uint8_t decimal
+ 	 \return     uint8_t
+ */
 uint8_t get_table_value_decimal(uint8_t value);
 
-void time_init();
+/*
+ 	 \brief	     Timer intialization
+ 	 \param[in]  void
+ 	 \return     void
+ */
+void time_init(void);
 
+/*
+ 	 \brief	     This function handles clock's seconds
+ 	 \param[in]  void
+ 	 \return     void
+ */
 void task_seconds(void);
 
+/*
+ 	 \brief	     This function handles clock's minutes
+ 	 \param[in]  void
+ 	 \return     void
+ */
 void task_minutes(void);
 
+/*
+ 	 \brief	     This function handles clock's hours
+ 	 \param[in]  void
+ 	 \return     void
+ */
 void task_hours(void);
 
-void task_print_terminal(void);
-
+/*
+ 	 \brief	     This function handles clock's alarm
+ 	 \param[in]  void
+ 	 \return     void
+ */
 void task_alarm();
 
+/*
+ 	 \brief	     This function handles the event group for the alarm
+ 	 \param[in]  void
+ 	 \return     void
+ */
 void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds);
+
+/*
+ 	 \brief	     This function handles terminal output
+ 	 \param[in]  void
+ 	 \return     void
+ */
+void task_print_terminal(void);
 
 #endif /* TIME_H_ */
