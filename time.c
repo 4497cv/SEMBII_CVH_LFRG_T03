@@ -1,12 +1,10 @@
 /**
-	\file time.c
-	\brief
-		This is the source file for the time module.
-		This library contains functions that are helpful for time operations,
-		related with any real time clock (MCP7940N) hardware.
+	\file     time.c
+	\brief    This is the source file for the time module.
+	
 	\authors: César Villarreal Hernández, ie707560
 	          José Luis Rodríguez Gutiérrez,ie705694
-	\date	  25/04/2019
+	\date	  30/09/2019
  */
 
 #include <time.h>
@@ -89,64 +87,19 @@ static const Keymap_t key_map[TABLE_SIZE]=
 	{FIFTYNINE,   FIVE,  NINE}
 };
 
-uint8_t get_table_value_1(uint8_t unit, uint8_t decimal)
+void time_init()
 {
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if((key_map[i].unit == unit) && (key_map[i].decimal == decimal))
-		{
-			ret_val = key_map[i].nval; //merge units and decimals
-		}
-	}
-
-	return ret_val;
+	/* semaphore's mutex instantiation */
+    g_mutex1 = xSemaphoreCreateMutex();
+    /* minutes semaphore instantiation */
+    minutes_semaphore = xSemaphoreCreateBinary();
+	/* hours semaphore instantiation */
+    hours_semaphore = xSemaphoreCreateBinary();
+    /* time event instantiation **/
+    g_time_events = xEventGroupCreate();
+    /* time queue instantiation*/
+    xQueue = xQueueCreate(QUEUE_ELEMENTS, sizeof(time_msg_t*));
 }
-
-
-uint8_t get_table_value_unit(uint8_t value)
-{
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if(key_map[i].nval == value)
-		{
-			ret_val = key_map[i].unit; //merge units and decimals
-		}
-	}
-
-	return ret_val;
-}
-
-uint8_t get_table_value_decimal(uint8_t value)
-{
-	uint8_t ret_val; //output val
-	uint8_t i; //counter
-
-	ret_val = FALSE; //default value; false is returned if NAVN
-
-	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
-	{
-		/** Verify if the given units and decimals correspond to 0 - 59 **/
-		if(key_map[i].nval == value)
-		{
-			ret_val = key_map[i].decimal; //merge units and decimals
-		}
-	}
-
-	return ret_val;
-}
-
 
 void task_seconds()
 {
@@ -242,7 +195,6 @@ void task_hours()
 	}
 }
 
-
 void task_print_terminal()
 {
 	time_msg_t *timer_alarm_queue;
@@ -314,20 +266,6 @@ void task_alarm()
 
 }
 
-void time_init()
-{
-	/* semaphore's mutex instantiation */
-    g_mutex1 = xSemaphoreCreateMutex();
-    /* minutes semaphore instantiation */
-    minutes_semaphore = xSemaphoreCreateBinary();
-	/* hours semaphore instantiation */
-    hours_semaphore = xSemaphoreCreateBinary();
-    /* time event instantiation **/
-    g_time_events = xEventGroupCreate();
-    /* time queue instantiation*/
-    xQueue = xQueueCreate(QUEUE_ELEMENTS, sizeof(time_msg_t*));
-}
-
 void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds)
 {
 	if((alarm.hours == hours) &&
@@ -340,4 +278,61 @@ void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds)
 	{
 
 	}
+}
+
+uint8_t get_table_value(uint8_t unit, uint8_t decimal)
+{
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
+
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
+	{
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if((key_map[i].unit == unit) && (key_map[i].decimal == decimal))
+		{
+			ret_val = key_map[i].nval; //merge units and decimals
+		}
+	}
+
+	return ret_val;
+}
+
+uint8_t get_table_value_unit(uint8_t value)
+{
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
+
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
+	{
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if(key_map[i].nval == value)
+		{
+			ret_val = key_map[i].unit; //merge units and decimals
+		}
+	}
+
+	return ret_val;
+}
+
+uint8_t get_table_value_decimal(uint8_t value)
+{
+	uint8_t ret_val; //output val
+	uint8_t i; //counter
+
+	ret_val = FALSE; //default value; false is returned if NAVN
+
+	for(i = ZERO; (TABLE_SIZE-1) > i ; i++)
+	{
+		/** Verify if the given units and decimals correspond to 0 - 59 **/
+		if(key_map[i].nval == value)
+		{
+			ret_val = key_map[i].decimal; //merge units and decimals
+		}
+	}
+
+	return ret_val;
 }

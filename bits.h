@@ -1,8 +1,11 @@
-/*
- * Bits.h
- *
- *  Created on: 04/09/2018
- *      Author: jlpe
+/**
+	\file     bits.h
+	\brief    data type structures file
+
+	\authors: César Villarreal Hernández, ie707560
+	          José Luis Rodríguez Gutiérrez,ie705694
+
+	\date	  30/09/2019
  */
 
 #ifndef BITS_H_

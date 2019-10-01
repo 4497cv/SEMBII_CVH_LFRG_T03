@@ -1,12 +1,11 @@
 /**
-	\file time.h
-	\brief
-		This is the header file for the time module.
-		This library contains functions that are helpful for time operations,
-		related with any real time clock hardware.
+	\file     time.h
+	\brief    This is the header file for the time module.
+
 	\authors: César Villarreal Hernández, ie707560
 	          José Luis Rodríguez Gutiérrez,ie705694
-	\date	  25/04/2019
+
+	\date	  30/09/2019
  */
 
 #ifndef TIME_H_
@@ -158,62 +157,73 @@ typedef struct
 } time_msg_t;
 
 /*
- 	 \brief		This function retrieves the value stored in the RTC module.
- 	 \param[in] uint32_t, uint8_t
- 	 \return 	void
- */
-void value_capture(uint32_t value, uint8_t op);
-
-/*
- 	 \brief		This function returns the units of the corresponding time/date operator(op)
- 	 \param[in] uint8_t
- 	 \return 	uint8_t
- */
-uint8_t get_unit(uint8_t op);
-
-/*
- 	 \brief		This function returns the decimals of the corresponding time/date operator(op)
- 	 \param[in] uint8_t
- 	 \return 	uint8_t
- */
-uint8_t get_decimal(uint8_t op);
-
-/*
- 	 \brief		This function updates the hour global values with the current time.
+ 	 \brief		This function updates the date global values with the current date.
  	 \param[in] void
  	 \return 	void
  */
-void update_hour(void);
+uint8_t get_table_value(uint8_t unit, uint8_t decimal);
 
 /*
  	 \brief		This function updates the date global values with the current date.
  	 \param[in] void
  	 \return 	void
  */
-void update_date(void);
-
-uint8_t get_table_value(uint8_t unit, uint8_t decimal);
-
-uint8_t get_current_hour();
-
-uint8_t get_current_min();
-
-uint8_t get_current_sec();
-
 uint8_t get_table_value_unit(uint8_t value);
 
+/*
+ 	 \brief		This function updates the date global values with the current date.
+ 	 \param[in] void
+ 	 \return 	void
+ */
 uint8_t get_table_value_decimal(uint8_t value);
 
+/*
+ 	 \brief		This function updates the date global values with the current date.
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void time_init();
 
+/*
+ 	 \brief		This function handles the clock's seconds 
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void task_seconds(void);
+
+/*
+ 	 \brief		This function handles the clock's minutes 
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void task_minutes(void);
+
+/*
+ 	 \brief		This function handles the clock's hours 
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void task_hours(void);
 
-void task_print_terminal(void);
-
+/*
+ 	 \brief		This function handles the alarm operation
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void task_alarm();
 
+/*
+ 	 \brief		This function sends the clock's information to the terminal
+ 	 \param[in] void
+ 	 \return 	void
+ */
+void task_print_terminal(void);
+
+/*
+ 	 \brief		This function updates the event group state bits for the alarm
+ 	 \param[in] void
+ 	 \return 	void
+ */
 void check_alarm(uint8_t hours, uint8_t minutes, uint8_t seconds);
 
 #endif /* TIME_H_ */
