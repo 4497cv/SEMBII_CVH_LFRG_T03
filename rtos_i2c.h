@@ -21,6 +21,8 @@
 #include "event_groups.h"
 #include "semphr.h"
 
+#define I2C_BAUDRATE (100000U)
+
 #define I2C_SLAVE_ADDR (0x00U)
 
 #endif /* RTOS_I2C_H_ */
